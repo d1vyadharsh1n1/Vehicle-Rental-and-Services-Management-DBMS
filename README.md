@@ -3,6 +3,9 @@
 ## Overview  
 The Vehicle Rental Management System simplifies the process of renting vehicles by connecting renters and owners. Renters can browse available vehicles and make bookings, while owners can list their vehicles for rent. The system is designed to ensure seamless interaction between the two user types.
 
+## Documentation 
+A detailed PDF explaining the project's workflow, along with photos and examples, is available in the repository. Refer to it for an in-depth understanding of the system.
+
 ## Features  
 
 - **User Roles**:  
