@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Bookings</title>
+    <!-- Include both script files -->
+    <script src="/payment-handling.js"></script>
+    <script src="/bookings-handler.js"></script>
+    <style>
+        .booking-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .booking-container {
+            margin: 20px;
+            padding: 20px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4">
+        <h1 class="text-2xl font-bold my-4">Current Bookings</h1>
+        <div id="current-bookings" class="booking-container"></div>
+
+        <!-- <h1 class="text-2xl font-bold my-4">Completed Bookings</h1>
+        <div id="completed-bookings" class="booking-container"></div> -->
+
+        <!-- Payment Modal -->
+
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+              <span id="closeModal" class="close">&times;</span>
+              <h2>Payment Details</h2>
+              <form>
+                <div class="form-group">
+                  <label>Payment Method:</label>
+                  <select name="payment-method">
+                    <option value="UPI">UPI</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Credit Card">Credit Card</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Amount:</label>
+                  <input type="number" name="amount" readonly>
+                </div>
+                <!-- <div class="form-group">
+                  <label>Date of Payment:</label>
+                  <input type="date" name="payment-date" readonly>
+                </div> -->
+                <button type="submit">Submit Payment</button>
+              </form>
+                <div id="invoice" style="display: none;">
+                    <h3>Invoice</h3>
+                    <!-- <p><strong>Payment ID:22e80fe7-ff1d-4a94-94fc-4711a060a83b</strong> <span id="paymentId"></span></p> -->
+                    <p><strong>Payment Method:</strong> <span id="invoiceMethod"></span></p>
+                    <p><strong>Amount:</strong> ₹<span id="invoiceAmount"></span></p>
+                    <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
+                    <p><strong>Invoice ID:</strong> <span id="invoiceId"></span></p>
+                </div>
+            </div>
+        </div>            
+</body>
+</html>

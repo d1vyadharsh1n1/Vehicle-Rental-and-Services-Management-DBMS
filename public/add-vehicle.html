@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Vehicle</title>
+    
+    <style>
+      /* General body and layout settings */
+      body {
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        background-image: url('https://img.lovepik.com/bg/20231220/Luxury-cars-parked-together-on-the-side-of-the-road_2478448_wh860.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: Arial, sans-serif;
+      }
+
+      .outer-box {
+        width: 50%;
+        border-radius: 15px;
+        padding: 30px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        background-color: rgba(248, 249, 250, 0.9);
+      }
+
+      .inner-box {
+        width: 100%;
+        overflow-y: auto;
+        max-height: 500px;
+        border: 1px solid rgba(248, 249, 250, 0.9);
+        border-radius: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        background-color: rgba(248, 249, 250, 0.9);
+      }
+
+      .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      /* Form inputs and buttons */
+      .input-container {
+        position: relative;
+        margin-bottom: 10px;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      .input-label {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 14px;
+        color: #999;
+        pointer-events: none; /* Prevent label from capturing events */
+        transition: 0.2s ease all;
+      }
+
+      input:focus + .input-label,
+      input:not(:placeholder-shown) + .input-label,
+      select:focus + .input-label,
+      select:not(:placeholder-shown) + .input-label {
+        top: -10px;
+        left: 10px;
+        font-size: 12px;
+        color: #007bff; /* Change label color on focus */
+      }
+
+      button {
+        background-color: #153e6a;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #153e6a;
+      }
+    </style>
+    <script>
+      async function submitVehicle(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const data = {
+          Owner_ID: formData.get("Owner_ID"), // Get Owner_ID from form data
+          Seater: formData.get("Seater"),
+          AC_Type: formData.get("AC_Type"),
+          Fuel: formData.get("Fuel"),
+          Fastag: formData.get("Fastag"),
+          Distance: formData.get("Distance"),
+          Yr: formData.get("Yr"),
+          Variant: formData.get("Variant"),
+          rand: formData.get("rand"),
+        };
+
+        try {
+          const response = await fetch("/add-vehicle", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            alert("Vehicle added successfully.");
+            window.location.href = "/";
+          } else {
+            alert("Failed to add vehicle.");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred. Please try again.");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="outer-box">
+      <div class="inner-box">
+        <div class="page-title">Add Vehicle</div>
+
+        <form onsubmit="submitVehicle(event)">
+          <input type="hidden" name="Owner_ID" value="<%= ownerId %>" />
+
+          <div class="input-container">
+            <input type="number" name="Seater" id="Seater" required placeholder=" " />
+            <label class="input-label" for="Seater">Seater</label>
+          </div>
+
+          <div class="input-container">
+            <select name="AC_Type" id="AC_Type" required>
+              <option value="" disabled selected>Select AC_Type</option>
+              <option value="AC">AC</option>
+              <option value="Non-AC">Non-AC</option>
+              <label class="input-label" for="AC_Type">AC_Type</label>
+            </select>
+
+          </div>
+
+          <div class="input-container">
+            <select name="Fuel" id="Fuel" required>
+              <option value="" disabled selected>Select Fuel Type</option>
+              <option value="Petrol">Petrol</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Electric">Electric</option>
+              <label class="input-label" for="Fuel">Fuel Type</label>
+            </select>
+          </div>
+
+          <div class="input-container">
+            <select name="Fastag" id="Fastag" required>
+              <option value="" disabled selected>Fastag</option>
+              <option value="Available">Available</option>
+              <option value="Not Available">Not Available</option>
+              <label class="input-label" for="Fastag">Fastag</label>
+            </select>
+            
+          </div>
+
+          <div class="input-container">
+            <input type="number" name="Distance" id="Distance" required placeholder=" " />
+            <label class="input-label" for="Distance">Distance (in km)</label>
+          </div>
+
+          <div class="input-container">
+            <input type="number" name="Yr" id="Yr" required placeholder=" " />
+            <label class="input-label" for="Yr">Year</label>
+          </div>
+
+          <div class="input-container">
+            <input type="text" name="Variant" id="Variant" required placeholder=" " />
+            <label class="input-label" for="Variant">Variant</label>
+          </div>
+
+          <div class="input-container">
+            <input type="text" name="rand" id="rand" required placeholder=" " />
+            <label class="input-label" for="rand">Brand</label>
+          </div>
+
+          <button type="submit">Add Vehicle</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

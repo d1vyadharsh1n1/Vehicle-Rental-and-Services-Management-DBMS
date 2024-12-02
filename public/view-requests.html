@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Requests</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+
+      h2 {
+        color: #0056b3;
+      }
+
+      .rental {
+        background-color: #fff;
+        border: 1px solid #0056b3;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+      }
+
+      button {
+        margin-right: 10px;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .accept {
+        background-color: #28a745;
+        color: white;
+      }
+
+      .deny {
+        background-color: #dc3545;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Rental Requests</h2>
+    <div id="requests-container"></div>
+
+    <script>
+      async function fetchPendingRentals() {
+        try {
+          const response = await fetch("/api/rental-requests"); // Endpoint to fetch pending rentals
+          if (!response.ok) throw new Error("Failed to fetch rental requests");
+          const rentals = await response.json();
+          displayRentals(rentals);
+        } catch (error) {
+          console.error("Error fetching rental requests:", error);
+        }
+      }
+
+      function displayRentals(rentals) {
+        const container = document.getElementById("requests-container");
+        container.innerHTML = "";
+
+        rentals.forEach((rental) => {
+          const rentalDiv = document.createElement("div");
+          rentalDiv.classList.add("rental");
+
+          rentalDiv.innerHTML = `
+            <h3>Vehicle ID: ${rental.Vehicle_ID}</h3>
+            <p><strong>Renter ID:</strong> ${rental.Renter_ID}</p>
+            <p><strong>Start Date:</strong> ${
+              rental.Start_date.split("T")[0]
+            }</p>
+            <p><strong>End Date:</strong> ${rental.End_date.split("T")[0]}</p>
+            <p><strong>Rental Amount:</strong> ₹${rental.Rental_Amount}</p>
+            <button class="accept" onclick="updateRentalStatus('${
+              rental.Rental_ID
+            }', 'accepted')">Accept</button>
+            <button class="deny" onclick="updateRentalStatus('${
+              rental.Rental_ID
+            }', 'denied')">Deny</button>
+          `;
+          container.appendChild(rentalDiv);
+        });
+      }
+      const acceptButtons = document.querySelectorAll(".accept-button");
+
+      acceptButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const rentalId = this.getAttribute("data-rental-id");
+
+          // Send a request to the backend to update the rental status
+          axios
+            .post(`/api/update-rental-status/${rentalId}`, {
+              StatusofRental: "accepted",
+            })
+            .then((response) => {
+              alert("Rental status updated successfully!");
+              // Optionally, you could refresh the table or update the UI to show the new status
+            })
+            .catch((error) => {
+              console.error("Error updating rental status:", error);
+              alert("Failed to update rental status.");
+            });
+        });
+      });
+
+      const denyButtons = document.querySelectorAll(".deny-button");
+
+      denyButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const rentalId = this.getAttribute("data-rental-id");
+
+          // Send a request to the backend to update the rental status to 'denied'
+          axios
+            .post(`/api/update-rental-status/${rentalId}`, {
+              StatusofRental: "denied",
+            })
+            .then((response) => {
+              alert("Rental status updated to 'denied'!");
+              // Optionally, update the UI to reflect the new status
+            })
+            .catch((error) => {
+              console.error("Error updating rental status:", error);
+              alert("Failed to update rental status.");
+            });
+        });
+      });
+
+      async function updateRentalStatus(rentalId, status) {
+        try {
+          const response = await fetch(
+            `/api/update-rental-status/${rentalId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ StatusofRental: status }),
+            }
+          );
+          if (!response.ok) throw new Error("Failed to update status");
+          alert(`Rental ${status}`);
+          fetchPendingRentals(); // Refresh the list after action
+        } catch (error) {
+          console.error(`Error updating status: ${error}`);
+        }
+      }
+
+      // Fetch pending rentals on page load
+      window.onload = fetchPendingRentals;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome</title>
+    <!-- Bootstrap CSS -->
+    <link 
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" 
+      rel="stylesheet" 
+      crossorigin="anonymous" 
+    />
+
+    <!-- Bootstrap Icons -->
+    <link 
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" 
+      rel="stylesheet" 
+    />
+    <style>
+      body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+      /* Section Styles */
+      .section {
+        height: 100vh;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        flex-direction: column; /* Stack children vertically */
+        align-items: flex-start; /* Align items to the start (left) */
+        justify-content: flex-start; /* Align items to the start (top) */
+        color: white;
+        padding: 20px; /* Optional: Add padding for spacing */
+      }
+      .welcome-text {
+        position: absolute;
+        bottom: 20px; /* Adjusts vertical position */
+        right: 20px; /* Adjusts horizontal position */
+        margin: 0; /* Removes default margin */
+        color: rgb(255, 255, 255); /* Change text color if needed */
+      }
+
+    
+      .bg-first {
+        background-image: url('https://machineswithsouls.com/wp-content/smush-webp/2019/06/bmw-m3-nyc-1-e1575925940705.jpg.webp');
+      }
+
+      .bg-second {
+        background-image: url('https://img.lovepik.com/bg/20231220/Luxury-cars-parked-together-on-the-side-of-the-road_2478448_wh860.png');
+      }
+
+      .bg-third {
+        background-image: url('https://tcexecutivecars.com/wp-content/uploads/case-study-bg.jpg');
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0); /* Adjusted transparency */
+        padding: 15px;
+        display: flex;
+        justify-content: space-between; /* Changed to space-between */
+        align-items: center; /* Added for vertical centering */
+        z-index: 10;
+      }
+
+      header a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        background-color: #0056b3;
+        border-radius: 5px;
+      }
+
+      header a:hover {
+        background-color: #003d80;
+      }
+
+      #logout-button {
+        margin-top: 20px;
+        background-color: #ff6666;
+      }
+      
+      .description {
+        margin-left: 700px; /* Optional: Set to desired value */
+        margin-top: 120px; /* Add some space from the top */
+        max-width: 500px; /* Limit the width of the paragraph */
+        text-align: left; /* Ensure text is left-aligned */
+        background-color: rgb(255, 255, 255);
+        color: #9f9696;
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+        padding: 20px; /* Padding inside the card */
+      }
+
+      /* Review Section Styles */
+      .review-container {
+        display: flex; /* Use flexbox to align items */
+        justify-content: space-around; /* Space items evenly */
+        align-items: flex-start; /* Align items to the top */
+        flex-wrap: wrap; /* Allow items to wrap if there's not enough space */
+      }
+      
+      .review-card {
+        background-color: white; /* Background color for the card */
+        color: #333;
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+        padding: 20px; /* Padding inside the card */
+        margin: 15px; /* Space between cards */
+        width: 30%; /* Card width; adjust as needed */
+        text-align: center; /* Center text inside card */
+      }
+
+      .profile-container {
+        display: flex; /* Create a flex container */
+        justify-content: center; /* Center the image */
+        margin-bottom: 10px; /* Space between image and text */
+      }
+
+      .profile-img {
+        width: 80px; /* Set the desired width */
+        height: 80px; /* Set the desired height */
+        border-radius: 50%; /* Make it circular */
+        border: 3px solid #fff; /* Optional: border around the image */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: shadow effect for the image */
+      }
+
+
+      footer {
+        background-color: #000;
+        color: white;
+        padding: 20px 0;
+        display: flex; /* Set footer to display flex */
+        justify-content: space-between; /* Distribute items evenly */
+        align-items: center; /* Center items vertically */
+      }
+
+      footer-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: 20px;
+      }
+      /* Experience Section */
+      .experience-section {
+        background-color: white;
+        padding: 20px;
+        color: black;
+        text-align: center;
+        display: flex;
+        justify-content: space-around; /* Distribute items evenly */
+        align-items: center; /* Center items vertically */
+      }
+
+      .experience-section h3 {
+        margin: 0;
+      }
+
+      /* Map styles */
+      .map-container {
+        height: 200px; /* Adjusted height for a more compact footer */
+        width: 20%; /* Set width for the map */
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .map-container iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+
+      /* Additional spacing between footer elements */
+      .footer-info {
+        margin-bottom: 20px; /* Increased space between columns */
+      }
+
+        /* Welcome message styling */
+      #welcome-message {
+        margin: 20px;
+        font-size: 2em;
+      }
+
+      /* Section styles for owner and renter */
+      #owner-section,
+      #renter-section {
+        margin: 20px;
+        display: none; /* Hide sections initially */
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #0056b3;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #003d80;
+      }
+
+      /* Centered logout button */
+      #logout-button {
+        margin-top: auto;
+        margin-bottom: 20px;
+        background-color: #ff6666;
+        display: none; /* Initially hidden */
+      }
+
+      #logout-button:hover {
+        background-color: #e04b4b;
+      }  
+    </style>
+    <script>
+      async function checkSession() {
+      try {
+        const response = await fetch("/session-status");
+        const data = await response.json();
+
+        // Show welcome message and auth buttons
+        if (data.loggedIn) {
+          document.getElementById("welcome-message").textContent =
+            "Hi, " + data.username;
+
+          if (data.role === "owner") {
+            document.getElementById("owner-section").style.display = "block";
+          } else if (data.role === "renter") {
+            document.getElementById("renter-section").style.display = "block";
+          }
+
+          document.getElementById("logout-button").style.display = "block";
+        } else {
+          document.getElementById("welcome-message").textContent =
+            "Welcome, Guest!";
+          document.getElementById("auth-buttons").style.display = "flex"; // Show auth buttons
+        }
+      } catch (error) {
+        console.error("Failed to fetch session status:", error);
+      }
+      }
+
+      window.onload = checkSession;
+    </script>
+ </head>
+ <body>
+    
+    <header id="auth-buttons">
+      <h1 style="color: white; margin: 0;">CAR<span style="color: orange;">BOOK</span></h1>
+      <div>
+        <a href="/login" class="btn btn-primary">Login</a>
+        <a href="/register" class="btn btn-secondary">Register</a>
+      </div>
+    </header>
+
+    <!-- First Section -->
+    <div class="section bg-first" style="position: relative;">
+      <p class="description">
+        <span style="font-weight: bold;">
+        Welcome to CARBOOK, your premier vehicle rental system designed to simplify your travel experience. Whether you need a car for a weekend getaway, a business trip, or daily commuting, we have a diverse fleet of vehicles to meet your needs, from compact cars to luxurious SUVs.
+
+        At CARBOOK, we believe in providing flexibility and convenience. Our user-friendly platform allows you to browse, compare, and book vehicles effortlessly, all from the comfort of your home. Enjoy the freedom of choosing the right vehicle for your journey, with options that cater to different preferences and budgets.
+
+        Join the countless happy customers who have chosen CARBOOK for their travel needs. Experience the ease of our online booking system and discover the joy of hassle-free travel today!
+        </span>
+      </p>
+    </div>
+    <div class="section bg-second">
+      <!-- Welcome message -->
+      <br><br><br>
+      <h2 id="welcome-message"></h2>
+      
+      <!-- Owner-specific options -->
+      <div id="owner-section">
+        <h3>Owner Options</h3>
+        <br><br><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="window.location.href='/view-requests'">
+          View Requests
+        </button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="window.location.href='/add-vehicle'">Add Vehicle</button>
+      </div>
+
+      <!-- Renter-specific options -->
+      <div id="renter-section">
+        <h3>Renter Options</h3>
+        <br><br><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="window.location.href='/view-bookings'">
+          View Bookings
+        </button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="window.location.href='/make-bookings'">
+          Make a Booking
+        </button>
+      </div>
+      <br><br><br><br>
+      <!-- Logout button, centered in footer -->
+      <footer-wrapper>
+        <button id="logout-button" onclick="window.location.href='/logout'">
+          Logout
+        </button>
+      </footer-wrapper>
+    </div>
+
+    <!-- Third Section: Reviews -->
+    <div class="section bg-third">
+      <div class="container">
+        <br><br><br><br>
+        <h2 class="text-center mb-5">Latest Reviews</h2>
+
+        <div class="review-container">
+          <div class="review-card">
+            <div class="profile-container">
+              <img src="https://png.pngitem.com/pimgs/s/404-4042710_circle-profile-picture-png-transparent-png.png" alt="Profile Photo" class="profile-img" />
+            </div>
+            <h4>John Doe</h4>
+            <p>"Great experience! The car was in perfect condition and the service was outstanding"</p>
+          </div>
+
+          <div class="review-card">
+            <div class="profile-container">
+              <img src="https://www.kindpng.com/picc/m/394-3947019_round-profile-picture-png-transparent-png.png" alt="Profile Photo" class="profile-img" />
+            </div>
+            <h4>Jane Smith</h4>
+            <p>"Hassle-free rental process. I highly recommend CARBOOK for your next vehicle rental"</p>
+          </div>
+
+          <div class="review-card">
+            <div class="profile-container">
+              <img src="https://png.pngitem.com/pimgs/s/38-383534_transparent-surprised-person-png-gentleman-png-download.png" alt="Profile Photo" class="profile-img" />
+            </div>
+            <h4>Mike Johnson</h4>
+            <p>"Fantastic selection of cars! I will definitely rent again for future road trips and adventures"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Experience Section -->
+    <div class="experience-section">
+      <h3>With Over <span style="font-weight: bold;">5 Years</span> of Experience</h3>
+      <h3>Number of Cars: <span style="font-weight: bold;">120</span></h3>
+      <h3>Happy Customers: <span style="font-weight: bold;">500+</span></h3>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container d-flex justify-content-between align-items-center">
+        <div class="footer-info col-md-3">
+          <h5 style="color: #38ef7d;">CARBOOK</h5>
+          <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+        </div>
+        
+        <div>
+          <h5>About Us</h5>
+          <li><a href="#" class="text-white">About</a></li>
+          <li><a href="#first-section" class="text-white">Services</a></li>
+          <li><a href="#third-section" class="text-white">Reviews</a></li>
+        </div>
+        
+        <!-- Added Map Section -->
+        <div class="map-container">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d394614.6220665545!2d80.16758083057792!3d13.082700498141775!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5267b8af7aab43%3A0xe128fb1e79cc2b58!2sChennai%2C%20Tamil%20Nadu%2C%20India!5e0!3m2!1sen!2sus!4v1674695029755!5m2!1sen!2sus"
+            allowfullscreen=""
+            loading="lazy"
+          ></iframe>
+        </div>
+
+        <div class="col-md-3 text-center">
+          <h5>Have a Question?</h5>
+          <p>Feel free to reach out to us anytime!</p>
+          <a href="mailto:support@carbook.com" class="btn btn-primary">Email Us</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

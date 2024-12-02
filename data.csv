@@ -1,0 +1,26 @@
+Num,Seater,AC_Type,Fuel,Fastag,Distance,Yr,Variant,Rental_Amount
+1,5,AC,Petrol,Available,25000,2020,Sedan,1500
+2,7,Non-AC,Diesel,Not Available,50000,2018,SUV,1600
+3,5,AC,Electric,Available,15000,2022,Hatchback,1800
+4,4,Non-AC,Petrol,Available,30000,2019,Coupe,1100
+5,5,AC,Diesel,Not Available,45000,2021,SUV,1400
+6,4,AC,Petrol,Available,35000,2017,Hatchback,1200
+7,8,AC,Diesel,Not Available,60000,2016,Van,1700
+8,5,Non-AC,Petrol,Available,20000,2023,Sedan,1400
+9,5,AC,Hybrid,Available,10000,2022,Sedan,1900
+10,7,AC,Diesel,Not Available,55000,2019,SUV,1800
+11,4,Non-AC,Petrol,Not Available,60000,2015,Coupe,1000
+12,6,AC,Diesel,Available,70000,2016,SUV,2000
+13,4,AC,Electric,Available,12000,2021,Hatchback,1700
+14,5,AC,Petrol,Available,22000,2020,Sedan,1600
+15,4,AC,Petrol,Not Available,45000,2018,Hatchback,1300
+16,7,AC,Diesel,Available,60000,2017,SUV,2100
+17,5,AC,Electric,Available,18000,2023,Sedan,1900
+18,6,Non-AC,Diesel,Available,80000,2015,Van,1500
+19,4,AC,Petrol,Not Available,40000,2017,Coupe,1100
+20,7,AC,Diesel,Available,35000,2020,SUV,2000
+21,4,Non-AC,Petrol,Available,38000,2019,Hatchback,1200
+22,5,AC,Hybrid,Available,15000,2021,SUV,2300
+23,4,AC,Electric,Available,8000,2023,Coupe,1800
+24,6,AC,Diesel,Not Available,75000,2017,SUV,1900
+25,5,AC,Petrol,Available,27000,2022,Sedan,1500

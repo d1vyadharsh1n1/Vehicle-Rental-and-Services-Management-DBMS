@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <style>
+      /* General body and layout settings */
+      body {
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        background-image: url('https://e1.pxfuel.com/desktop-wallpaper/487/217/desktop-wallpaper-cars-3-movie-lightning-mc-queen-vs-jackson-storm-background-zubhxr-lightning-cars.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: Arial, sans-serif;
+      }
+
+      .outer-box {
+        width: 50%;
+        border-radius: 15px;
+        padding: 30px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        background-color: rgba(248, 249, 250, 0.9);
+      }
+
+      .inner-box {
+        width: 100%;
+        overflow-y: auto;
+        max-height: 500px;
+        border: 1px solid rgba(248, 249, 250, 0.9);
+        border-radius: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        background-color: rgba(248, 249, 250, 0.9);
+      }
+
+      .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      /* Form inputs and buttons */
+      input, select, button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      .phone-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .phone-container button {
+        margin-left: 10px;
+        width: 30px;
+        height: 30px;
+        background-color: #3953a9;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 16px;
+        padding: 0;
+      }
+
+      .remove-button {
+        background-color: #FF4C4C;
+      }
+
+      .register-button {
+        background-color: #153e6a;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .driver-license-container {
+        display: none; /* Initially hidden */
+      }
+    </style>
+
+    <script>
+      let phoneCount = 1;
+
+      function addPhoneNumber() {
+        phoneCount++;
+        const phoneContainer = document.getElementById('phoneContainer');
+
+        const newPhoneField = document.createElement('div');
+        newPhoneField.className = 'phone-container';
+        newPhoneField.innerHTML = `
+          <input type="tel" placeholder="Enter Phone Number ${phoneCount}" pattern="[0-9]{10}">
+          <button class="remove-button" onclick="removePhoneNumber(this)">-</button>
+        `;
+        phoneContainer.parentNode.insertBefore(newPhoneField, phoneContainer.nextSibling);
+      }
+
+      function removePhoneNumber(button) {
+        button.parentElement.remove();
+      }
+
+      function toggleDriverLicenseInput() {
+        const roleSelect = document.getElementById('roleSelect');
+        const driverLicenseContainer = document.getElementById('driverLicenseContainer');
+
+        if (roleSelect.value === 'renter') {
+          driverLicenseContainer.style.display = 'block';
+        } else {
+          driverLicenseContainer.style.display = 'none';
+        }
+      }
+
+      async function registerUser(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const phoneNumbers = [];
+        document.querySelectorAll('input[name="Mobile_Number"]').forEach(input => {
+          if (input.value) phoneNumbers.push(input.value);
+        });
+
+        const data = {
+          User_Name: formData.get("User_Name"),
+          Email: formData.get("Email"),
+          Pass_word: formData.get("Pass_word"),
+          DOB: formData.get("DOB"),
+          Address: formData.get("Address"),
+          Mobile_Number: phoneNumbers,
+          role: formData.get("role"),
+          DriverLicense: formData.get("DriverLicense") || null,
+        };
+
+        try {
+          const response = await fetch("/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            window.location.href = "/"; // Redirect on success
+          } else {
+            alert("Registration failed.");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred. Please try again.");
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="outer-box">
+      <div class="inner-box">
+        <div class="page-title">REGISTER</div>
+
+        <form id="registerForm" onsubmit="registerUser(event)">
+          <input type="text" name="User_Name" placeholder="User Name" required />
+          <input type="email" name="Email" placeholder="Email" required />
+          <input type="password" name="Pass_word" placeholder="Password" required />
+          <input type="date" name="DOB" placeholder="DOB" required />
+          <input type="text" name="Address" placeholder="Address" required />
+
+          <div class="phone-container" id="phoneContainer">
+            <input type="tel" name="Mobile_Number" placeholder="Enter Phone Number" pattern="[0-9]{10}" required />
+            <button type="button" onclick="addPhoneNumber()">+</button>
+          </div>
+
+          <select name="role" id="roleSelect" required onchange="toggleDriverLicenseInput()">
+            <option value="" disabled selected>Select Role</option>
+            <option value="owner">Owner</option>
+            <option value="renter">Renter</option>
+          </select>
+
+          <div class="driver-license-container" id="driverLicenseContainer">
+            <input type="text" name="DriverLicense" placeholder="Driver's License Number" />
+          </div>
+
+          <button type="submit" class="register-button">Register</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

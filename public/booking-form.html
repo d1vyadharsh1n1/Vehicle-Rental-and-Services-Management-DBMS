@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Form</title>
+    <style>
+        /* Your existing styles remain unchanged */
+        body {
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        background-image: url("https://tcexecutivecars.com/wp-content/uploads/case-study-bg.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: Arial, sans-serif;
+      }
+
+      .card {
+        width: 35%;
+        padding: 30px;
+        box-sizing: border-box;
+        background-color: rgba(248, 249, 250, 0.9);
+        border: 2px solid #ddd;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: width 0.5s, height 0.5s;
+      }
+
+      .card-header {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+        color: white;
+        background-color: #153e6a;
+        border-radius: 10px;
+        padding: 15px;
+      }
+
+      input,
+      button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #153e6a;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0f2c50;
+      }
+
+      .message {
+        margin-top: 10px;
+        color: #28a745;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .card {
+          width: 90%;
+        }
+      }
+    </style>
+    <script>
+        async function submitBooking(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch("/book-vehicle", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                document.getElementById("message").textContent = result.message;
+
+                if (response.ok) {
+                    // Clear form fields after successful booking
+                    document.getElementById("booking-form").reset();
+                    document.getElementById("rental-rate").textContent = "Rate: 0"; // Reset rental rate display
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("message").textContent =
+                    "Error occurred while booking the vehicle.";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Get vehicle ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const vehicleId = urlParams.get("vehicle_id");
+            document.getElementById("vehicle-id").value = vehicleId;
+
+            // Handle form submission
+            document.getElementById("booking-form").addEventListener("submit", submitBooking);
+
+            // Add event listeners for date inputs
+            document.getElementById("start-date").addEventListener("change", () => fetchVehicleRate(vehicleId));
+            document.getElementById("end-date").addEventListener("change", () => fetchVehicleRate(vehicleId));
+        });
+
+        async function fetchVehicleRate(vehicleId) {
+            const startDate = document.getElementById("start-date").value;
+            const endDate = document.getElementById("end-date").value;
+
+            // Ensure both dates are selected
+            if (!startDate || !endDate) return;
+
+            try {
+                const response = await fetch(`/api/vehicle-rate/${vehicleId}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch rental amount");
+                }
+                const { rentalAmount } = await response.json();
+                
+                // Display the fetched rental amount
+                document.getElementById("rental-rate").textContent = `Rate: ${rentalAmount}`;
+            } catch (error) {
+                console.error("Error fetching rental amount:", error);
+                document.getElementById("rental-rate").textContent = "Error fetching rate"; // Show error message
+            }
+        }
+    </script>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">Booking Form</div>
+    <div class="card-body">
+      <form id="booking-form">
+        <input type="hidden" id="vehicle-id" name="Vehicle_ID" />
+        
+        <!-- Hidden input for Rental Amount -->
+        <input type="hidden" id="rental-amount" name="Rental_Amount" />
+    
+        <label for="start-date">Start Date:</label>
+        <input type="date" id="start-date" name="Start_date" required />
+    
+        <label for="end-date">End Date:</label>
+        <input type="date" id="end-date" name="End_date" required />
+    
+        <!-- Rental Amount Display -->
+        <p id="rental-rate" class="rental-rate">Rate: 0</p>
+    
+        <button type="submit">Submit Booking</button>
+    </form>
+
+      <div class="message" id="message"></div>
+    </div>
+  </div>
+</body>
+</html>
