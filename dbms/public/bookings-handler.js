@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display completed bookings
         if (completedBookings.length === 0) {
-            completedBookingsContainer.innerHTML = '<p>No completed bookings</p>';
+            completedBookingsContainer.innerHTML = '<p> </p>';
         } else {
             completedBookings.forEach(booking => {
                 const card = createBookingCard(booking);

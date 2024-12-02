@@ -1,4 +1,6 @@
 import pandas as pd
+import sys
+import json
 import pymysql
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -11,11 +13,11 @@ def connect_to_mysql():
         connection = pymysql.connect(
             host='localhost',
             user='root',
-            password='eniya1704',
-            database='amoha',
+            password='Mittu#456',
+            database='Vehicle_Rental',
             port=3306
         )
-        print("Connected to MySQL")
+        # print("Connected to MySQL")
         return connection
     except pymysql.MySQLError as e:
         print(f"Error connecting to MySQL: {e}")
@@ -24,7 +26,8 @@ def connect_to_mysql():
 # Load data from CSV file and train model
 def train_model():
     # Load data from CSV file
-    df = pd.read_csv("data.csv")
+    df = pd.read_csv("c:/Users/dell/Vehicle-Rental-and-Services-Management-DBMS/dbms/data.csv")
+
 
     # Preprocessing
     label_encoders = {}
@@ -47,7 +50,7 @@ def train_model():
     # Predictions and evaluation
     predictions = model.predict(X_test)
     mae = mean_absolute_error(y_test, predictions)
-    print(f"Mean Absolute Error: {mae}")
+    # print(f"Mean Absolute Error: {mae}")
 
     return model, label_encoders
 
@@ -58,7 +61,7 @@ def fetch_vehicle_data(vehicle_id):
         print("Connection failed.")
         return None
 
-    query = "SELECT Seater, AC_Type, Fuel, Fastag, Distance, Year FROM Vehicles WHERE Vehicle_ID = %s"
+    query = "SELECT Seater, AC_Type, Fuel, Fastag, Distance, Yr FROM Vehicle WHERE Vehicle_ID = %s"
     try:
         with connection.cursor() as cursor:
             cursor.execute(query, (vehicle_id,))
@@ -67,7 +70,7 @@ def fetch_vehicle_data(vehicle_id):
                 print(f"No vehicle found with Vehicle_ID: {vehicle_id}")
                 return None
             else:
-                columns = ['Seater', 'AC_Type', 'Fuel', 'Fastag', 'Distance', 'Year']
+                columns = ['Seater', 'AC_Type', 'Fuel', 'Fastag', 'Distance', 'Yr']
                 vehicle_data = dict(zip(columns, result))
                 #print(f"Fetched data: {vehicle_data}")
                 return vehicle_data
@@ -90,7 +93,7 @@ def preprocess_vehicle_data(vehicle_data, label_encoders):
             "Fuel": [fuel_encoded],
             "Fastag": [fastag_encoded],
             "Distance": [vehicle_data['Distance']],
-            "Year": [vehicle_data['Year']]
+            "Yr": [vehicle_data['Yr']]
         })
         #print(f"Preprocessed data: {new_data}")
         return new_data
@@ -104,7 +107,11 @@ def main():
     model, label_encoders = train_model()
 
     # User input for vehicle ID
-    vehicle_id = input("Enter the Vehicle ID: ")
+    if len(sys.argv) > 1:
+        vehicle_id = sys.argv[1]
+    else:
+        print("Vehicle ID not provided as an argument.")
+        return
 
     # Fetch vehicle data
     vehicle_data = fetch_vehicle_data(vehicle_id)
@@ -113,7 +120,9 @@ def main():
         if user_df is not None:
             # Predicting rental amount
             predicted_rental = model.predict(user_df)
-            print(f"Predicted Rental Amount: {predicted_rental[0]}")
+            predicted_value = predicted_rental[0]
+            # print(f"Predicted Rental Amount: {predicted_rental[0]}",flush = True)
+            print(predicted_rental[0])
     else:
         print("Could not fetch vehicle data for the given Vehicle_ID.")
 

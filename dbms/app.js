@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const session = require("express-session"); // Import express-session
 const { v4: uuidv4 } = require("uuid"); // Import UUID
+const { exec } = require("child_process"); 
 
 const app = express();
 
@@ -275,12 +276,41 @@ app.post("/add-vehicle", (req, res) => {
       Variant,
       rand,
     },
+    
     (error, result) => {
       if (error) {
         console.log(error);
         return res.status(500).json({ message: "Failed to add vehicle." });
       }
-      return res.status(200).json({ message: "Vehicle added successfully." });
+      console.log("Vehicle added successfully. Now predicting rental...");
+      const { spawn } = require('child_process');
+      //this should be the addess of the python train file.
+      const pythonProcess = spawn('python', ['C:\\Users\\dell\\Vehicle-Rental-and-Services-Management-DBMS\\dbms\\traindata.py', Vehicle_ID]);
+      
+      pythonProcess.stdout.on('data', (data) => {
+        console.log("Received data from Python:", data.toString());
+        const output = data.toString().trim();
+        const predictedRental = parseFloat(output);
+        console.log("Predicted Rate:", predictedRental);
+        // Update the vehicle record with the predicted rental amount
+        db.query(
+          "UPDATE Vehicle SET Rate = ? WHERE Vehicle_ID = ?",
+          [predictedRental, Vehicle_ID],
+          (err, updateResult) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({ message: "Failed to update rental amount." });
+            }
+            return res.status(200).json({ message: "Vehicle added successfully and rental amount updated." });
+          }
+        );
+        
+      });
+
+      pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+        return res.status(500).json({ message: "Error predicting rental amount." });
+      });
     }
   );
 });
@@ -296,6 +326,32 @@ app.get("/api/vehicles", (req, res) => {
   });
 });
 
+//for getting rate
+  app.get('/api/vehicle-Rate/:vehicleId', (req, res) => {
+    const { vehicleId } = req.params;
+  
+    // Callback style query
+    db.query('SELECT Rate FROM vehicle WHERE Vehicle_ID = ?', [vehicleId], (error, results) => {
+      if (error) {
+        console.error('Error fetching rental amount:', error);
+        return res.status(500).json({ message: 'Failed to fetch rental amount' });
+      }
+  
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'Vehicle not found' });
+      }
+  
+      // Assuming the first row contains the rate
+      const vehicle = results[0];
+      console.log("Rental Amount in backend:", vehicle.Rate);
+  
+      // Sending back the rate in JSON format
+      res.json({ rentalAmount: vehicle.Rate });
+    });
+  });
+  
+
+
 app.get("/api/rental-requests", (req, res) => {
   db.query(
     "SELECT * FROM Rental WHERE StatusofRental = 'pending'",
@@ -310,38 +366,123 @@ app.get("/api/rental-requests", (req, res) => {
 });
 
 app.get("/api/bookings", (req, res) => {
-  db.query(
-    "SELECT Vehicle.*, Rental.* FROM Vehicle INNER JOIN Rental ON Vehicle.Vehicle_ID = Rental.Vehicle_ID",
-    (error, results) => {
-      if (error) {
-        console.error("Error fetching bookings:", error);
-        return res.status(500).json({ message: "Failed to fetch bookings." });
-      }
-      // Map results to a structure that includes nested 'Vehicle' object
-      const bookings = results.map((result) => ({
-        Start_date: result.Start_date,
-        End_date: result.End_date,
-        Rental_Amount: result.Rental_Amount,
-        StatusofRental: result.StatusofRental,
-        Vehicle: {
-          Variant: result.Variant,
-          rand: result.rand,
-          Fuel: result.Fuel,
-          Seater: result.Seater,
-          AC_Type: result.AC_Type,
-          Distance: result.Distance,
-        },
-      }));
-      res.json(bookings);
+  const query = `
+    SELECT 
+      v.*,
+      r.*,
+      o.Owner_ID
+    FROM Vehicle v
+    INNER JOIN Rental r ON v.Vehicle_ID = r.Vehicle_ID
+    INNER JOIN Owners o ON v.Owner_ID = o.Owner_ID
+  `;
+  
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error("Error fetching bookings:", error);
+      return res.status(500).json({ message: "Failed to fetch bookings." });
     }
-  );
+    
+    const bookings = results.map(result => ({
+      Start_date: result.Start_date,
+      End_date: result.End_date,
+      Rental_Amount: result.Rental_Amount,
+      StatusofRental: result.StatusofRental,
+      Owner_ID: result.Owner_ID,
+      Renter_ID: result.Renter_ID,
+      Vehicle: {
+        Variant: result.Variant,
+        rand: result.rand,
+        Fuel: result.Fuel,
+        Seater: result.Seater,
+        AC_Type: result.AC_Type,
+        Distance: result.Distance
+      }
+    }));
+    
+    res.json(bookings);
+  });
 });
 
 // Handle booking creation
+// app.post("/book-vehicle", (req, res) => {
+//   const { Vehicle_ID, Start_date, End_date, Rental_Amount } = req.body;
+//   const Renter_ID = req.session.renterId;
+//   //console.log("Booking request body:", req.body);
+
+//   if (!Renter_ID) {
+//     return res.status(401).json({
+//       message: "You must be logged in as a renter to book a vehicle.",
+//     });
+//   }
+
+//   const availabilityCheckSql = `
+//     SELECT COUNT(*) AS count
+//     FROM Rental
+//     WHERE Vehicle_ID = ? 
+//       AND StatusofRental = 'accepted'
+//       AND (
+//         (Start_date <= ? AND End_date >= ?) OR 
+//         (Start_date <= ? AND End_date >= ?) OR
+//         (Start_date >= ? AND End_date <= ?)
+//       )
+//   `;
+
+//   db.query(
+//     availabilityCheckSql,
+//     [
+//       Vehicle_ID,
+//       Start_date,
+//       End_date,
+//       Start_date,
+//       End_date,
+//       Start_date,
+//       End_date,
+//     ],
+//     (error, results) => {
+//       if (error) {
+//         console.log("Error checking availability:", error);
+//         return res
+//           .status(500)
+//           .json({ message: "Error checking vehicle availability." });
+//       }
+
+//       const { count } = results[0];
+//       if (count > 0) {
+//         // Vehicle is already booked
+//         return res
+//           .status(400)
+//           .json({ message: "Vehicle not available during these dates." });
+//       }
+      
+//       const Rental_ID = uuidv4(); // Generate unique rental ID
+
+//       db.query(
+//         "INSERT INTO Rental SET ?",
+//         {
+//           Rental_ID,
+//           Renter_ID,
+//           Vehicle_ID,
+//           Rental_Amount,
+//           Start_date,
+//           End_date,
+//         },
+//         (error, result) => {
+//           if (error) {
+//             console.log("Error inserting data:", error);
+//             return res.status(500).json({ message: "Failed to book vehicle." });
+//           }
+//           console.log("Data inserted successfully");
+//           return res
+//             .status(200)
+//             .json({ message: "Waiting for Owner Approval." });
+//         }
+//       );
+//     }
+//   );
+// });
 app.post("/book-vehicle", (req, res) => {
-  const { Vehicle_ID, Start_date, End_date, Rental_Amount } = req.body;
+  const { Vehicle_ID, Start_date, End_date } = req.body;
   const Renter_ID = req.session.renterId;
-  //console.log("Booking request body:", req.body);
 
   if (!Renter_ID) {
     return res.status(401).json({
@@ -388,32 +529,46 @@ app.post("/book-vehicle", (req, res) => {
           .json({ message: "Vehicle not available during these dates." });
       }
 
-      const Rental_ID = uuidv4(); // Generate unique rental ID
-
-      db.query(
-        "INSERT INTO Rental SET ?",
-        {
-          Rental_ID,
-          Renter_ID,
-          Vehicle_ID,
-          Rental_Amount,
-          Start_date,
-          End_date,
-        },
-        (error, result) => {
-          if (error) {
-            console.log("Error inserting data:", error);
-            return res.status(500).json({ message: "Failed to book vehicle." });
-          }
-          console.log("Data inserted successfully");
+      // Fetch the Rate from the Vehicle table
+      const rateQuery = `SELECT Rate FROM Vehicle WHERE Vehicle_ID = ?`;
+      db.query(rateQuery, [Vehicle_ID], (error, rateResult) => {
+        if (error) {
+          console.log("Error fetching rate:", error);
           return res
-            .status(200)
-            .json({ message: "Waiting for Owner Approval." });
+            .status(500)
+            .json({ message: "Failed to retrieve vehicle rate." });
         }
-      );
+
+        const Rental_Amount = rateResult[0].Rate; // Use the rate as Rental_Amount
+        const Rental_ID = uuidv4(); // Generate unique rental ID
+
+        // Insert rental record with the fetched rate as Rental_Amount
+        db.query(
+          "INSERT INTO Rental SET ?",
+          {
+            Rental_ID,
+            Renter_ID,
+            Vehicle_ID,
+            Rental_Amount,
+            Start_date,
+            End_date,
+          },
+          (error, result) => {
+            if (error) {
+              console.log("Error inserting data:", error);
+              return res.status(500).json({ message: "Failed to book vehicle." });
+            }
+            console.log("Data inserted successfully");
+            return res
+              .status(200)
+              .json({ message: "Waiting for Owner Approval." });
+          }
+        );
+      });
     }
   );
 });
+
 
 app.post("/api/update-rental-status/:rentalId", (req, res) => {
   const { rentalId } = req.params; // Use rentalId from the route parameter
@@ -457,7 +612,75 @@ app.get("/session-status", (req, res) => {
     res.json({ loggedIn: false });
   }
 });
+app.post("/submit-payment", (req, res) => {
+  const { amount, renterId, ownerId, method } = req.body;
+  const paymentId = uuidv4(); // Generate unique Payment ID
+  const invoiceId = uuidv4(); // Generate unique Invoice ID
+  const paymentDate = new Date(); // Current date for payment date
 
+  // Validate payment method
+  const validMethods = ['Credit Card', 'Debit Card', 'UPI', 'Cash'];
+  if (!validMethods.includes(method)) {
+      return res.status(400).json({ message: "Invalid payment method" });
+  }
+
+  // Start a transaction to ensure both payment and invoice are created
+  db.beginTransaction(function(err) {
+      if (err) {
+          return res.status(500).json({ message: "Transaction start failed" });
+      }
+
+      // Insert payment transaction
+      db.query(
+          "INSERT INTO Payment_Transactions SET ?",
+          {
+              Payment_ID: paymentId,
+              Amount: amount,
+              Payment_Date: paymentDate,
+              Method: method,
+              Renter_ID: renterId,
+              Owner_ID: ownerId,
+          },
+          (error, result) => {
+              if (error) {
+                  return db.rollback(() => {
+                      res.status(500).json({ message: "Payment insertion failed" });
+                  });
+              }
+
+              // Insert invoice
+              db.query(
+                  "INSERT INTO Invoice SET ?",
+                  {
+                      Invoice_ID: invoiceId,
+                      Payment_ID: paymentId,
+                  },
+                  (error, result) => {
+                      if (error) {
+                          return db.rollback(() => {
+                              res.status(500).json({ message: "Invoice creation failed" });
+                          });
+                      }
+
+                      // Commit the transaction
+                      db.commit((err) => {
+                          if (err) {
+                              return db.rollback(() => {
+                                  res.status(500).json({ message: "Transaction commit failed" });
+                              });
+                          }
+                          res.status(200).json({
+                              message: "Payment processed successfully",
+                              invoiceId,
+                              paymentId
+                          });
+                      });
+                  }
+              );
+          }
+      );
+  });
+});
 // Handle user logout
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {

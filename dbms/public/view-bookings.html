@@ -1,183 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Bookings</title>
+    <!-- Include both script files -->
+    <script src="/payment-handling.js"></script>
+    <script src="/bookings-handler.js"></script>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: #f4f4f4;
-        color: #333;
-      }
-
-      h2 {
-        color: #333;
-        margin-bottom: 20px;
-        font-size: 1.8em;
-      }
-
-      .booking-container {
-        margin-bottom: 30px;
-      }
-
-      .booking {
-        border: 1px solid #ddd;
-        padding: 20px;
-        margin-bottom: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: box-shadow 0.3s ease;
-      }
-
-      .booking:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-      }
-
-      .booking h3 {
-        margin: 0;
-        font-size: 1.5em;
-        color: #0056b3;
-      }
-
-      .booking h4 {
-        margin-top: 5px;
-        font-size: 1.2em;
-        color: #333;
-      }
-
-      .booking p {
-        margin: 8px 0;
-        font-size: 1em;
-        color: #666;
-      }
-
-      .booking p strong {
-        color: #333;
-      }
-
-      .button-container {
-        margin-top: 15px;
-        display: flex;
-        gap: 10px;
-      }
-
-      .button-container button {
-        padding: 8px 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-      }
-
-      .button-container .accept {
-        background-color: #28a745;
-        color: #fff;
-      }
-
-      .button-container .accept:hover {
-        background-color: #218838;
-      }
-
-      .button-container .deny {
-        background-color: #dc3545;
-        color: #fff;
-      }
-
-      .button-container .deny:hover {
-        background-color: #c82333;
-      }
-
-      /* Empty states styling */
-      .empty-state {
-        color: #888;
-        font-size: 1.1em;
-        text-align: center;
-        padding: 20px;
-        border: 1px dashed #ddd;
-        border-radius: 8px;
-        background-color: #fafafa;
-      }
+        body {
+            background-image: url("https://tcexecutivecars.com/wp-content/uploads/case-study-bg.jpg");
+            background-size: cover; /* Ensures the image covers the whole background */
+            background-position: center; /* Centers the image */
+            color: black; /* Default text color to black */
+        }
+        .booking-card {
+            background: white;
+            border-radius: 8px;
+            padding: 40px; /* Reduced padding */
+            margin-bottom: 40px; /* Reduced margin */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .booking-container {
+            margin: 20px;
+            padding: 15px; /* Reduced padding */
+        }
+        h1 {
+            text-transform: uppercase; /* Makes text capital letters */
+            color: white; /* Heading color to white */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+        }
     </style>
-  </head>
-  <body>
-    <h2>Current Bookings</h2>
-    <div id="current-bookings" class="booking-container"></div>
+</head>
+<body>
+    <div class="container mx-auto px-4">
+        <h1 class="text-2xl font-bold my-4">Current Bookings</h1>
+        <div id="current-bookings" class="booking-container"></div>
 
-    <h2>Completed Bookings</h2>
-    <div id="completed-bookings" class="booking-container"></div>
+        <h1 class="text-2xl font-bold my-4">Completed Bookings</h1>
+        <div id="completed-bookings" class="booking-container"></div>
 
-    <script>
-      async function fetchBookings() {
-        try {
-          const response = await fetch("/api/bookings"); // Ensure this endpoint returns bookings
-          if (!response.ok) {
-            throw new Error("Failed to fetch bookings");
-          }
-          const bookings = await response.json();
-          console.log("Fetched Bookings:", bookings); // Log the bookings to check structure
-          displayBookings(bookings);
-        } catch (error) {
-          console.error("Error:", error);
-          document.getElementById("current-bookings").innerHTML = "<p>Error fetching bookings. Please try again later.</p>";
-        }
-      }
-    
-      function displayBookings(bookings) {
-        const currentBookingsContainer = document.getElementById("current-bookings");
-        const completedBookingsContainer = document.getElementById("completed-bookings");
-    
-        currentBookingsContainer.innerHTML = "";
-        completedBookingsContainer.innerHTML = "";
-    
-        const today = new Date();
-        const todayISO = today.toISOString().split("T")[0]; // Get today's date in ISO format
-    
-        bookings.forEach((booking) => {
-          const startDateISO = booking.Start_date.split("T")[0]; // Ensure date format is correct
-          const endDateISO = booking.End_date.split("T")[0]; // Ensure date format is correct
-          const bookingDiv = document.createElement("div");
-          bookingDiv.classList.add("booking");
-    
-          // Display vehicle details and booking information
-          bookingDiv.innerHTML = `
-            <h3>${booking.Vehicle.Variant}</h3>
-            <h4>${booking.Vehicle.rand}</h4>
-            <p><strong>Start Date:</strong> ${startDateISO}</p>
-            <p><strong>End Date:</strong> ${endDateISO}</p>
-            <p><strong>Fuel Type:</strong> ${booking.Vehicle.Fuel}</p>
-            <p><strong>Seater:</strong> ${booking.Vehicle.Seater}</p>
-            <p><strong>AC Type:</strong> ${booking.Vehicle.AC_Type}</p>
-            <p><strong>Distance Travelled:</strong> ${booking.Vehicle.Distance} km</p>
-            <p><strong>Status of Rental:</strong> ${booking.StatusofRental} </p>
-          `;
-    
-          // Separate into current and completed bookings based on end date
-          if (todayISO > endDateISO) {
-            completedBookingsContainer.appendChild(bookingDiv);
-          } else {
-            currentBookingsContainer.appendChild(bookingDiv);
-          }
-        });
-    
-        // Handle empty states
-        if (currentBookingsContainer.innerHTML === "") {
-          currentBookingsContainer.innerHTML = "<div class='empty-state'>No current bookings found.</div>";
-        }
-        if (completedBookingsContainer.innerHTML === "") {
-          completedBookingsContainer.innerHTML = "<div class='empty-state'>No completed bookings found.</div>";
-        }
-      }
-    
-      // Call fetchBookings when the page loads
-      window.onload = function () {
-        fetchBookings();
-      };
-    </script>
-    
-  </body>
+        <!-- Payment Modal -->
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close">&times;</span>
+                <h2>Payment Details</h2>
+                <form>
+                    <div class="form-group">
+                        <label>Payment Method:</label>
+                        <select name="payment-method">
+                            <option value="UPI">UPI</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Credit Card">Credit Card</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" name="amount" readonly>
+                    </div>
+                    <button type="submit">Submit Payment</button>
+                </form>
+                <div id="invoice" style="display: none;">
+                    <h3>Invoice</h3>
+                    <p><strong>Payment Method:</strong> <span id="invoiceMethod"></span></p>
+                    <p><strong>Amount:</strong> ₹<span id="invoiceAmount"></span></p>
+                    <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
+                    <p><strong>Invoice ID:</strong> <span id="invoiceId"></span></p>
+                </div>
+            </div>
+        </div>            
+    </div>
+</body>
 </html>
