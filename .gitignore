@@ -1,0 +1,11 @@
+#ignore Node.js dependencies
+node_modules/
+
+#ignore environment variables
+.env
+
+#ignore CSV files
+data.csv
+
+#ignore VS Code setings
+.vscode/
